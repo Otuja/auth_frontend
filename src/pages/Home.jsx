@@ -17,7 +17,7 @@ const Home = () => {
             <div className="space-y-2">
               <h1 className="text-3xl md:text-4xl font-bold">Welcome</h1>
               <p className="text-sm md:text-base text-gray-800">
-                Discover a seamless and secure way to access your account with our custom authentication system. Designed for simplicity and reliability, our platform ensures your data stays safe while providing a smooth sign-in and sign-up experience tailored to your needs. Join us today and take control of your digital journey with confidence!
+                  Join our platform with a secure sign-up process. Register with your email, verify your account using a one-time password (OTP) sent via email, and unlock a seamless experience with our custom authentication system.
               </p>
             </div>
             <div className="flex justify-between space-x-3 md:space-x-4">
