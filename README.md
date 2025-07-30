@@ -1,11 +1,12 @@
 Custom Authentication Frontend
-A modern, secure authentication frontend built with React, Vite, and Tailwind CSS, integrated with a Django REST Framework backend. This application provides user registration with OTP email verification (via Brevo), login, logout, and a protected dashboard. The design features a responsive yellow-to-white gradient UI, ensuring a seamless user experience across devices.
+A modern, secure authentication frontend built with React, Vite, and Tailwind CSS, integrated with a Django REST Framework backend. This application provides user registration with OTP email verification (via Brevo), login, logout, password reset, and a protected dashboard. The design features a responsive yellow-to-white gradient UI, ensuring a seamless user experience across devices.
 Features
 
 User Registration: Sign up with username, email, and password, followed by OTP verification sent via email.
 Login: Authenticate users with username and password, storing a token in localStorage.
 OTP Verification: Verify accounts using a 6-digit OTP sent to the user's email.
 Resend OTP: Request a new OTP if the initial email fails or expires.
+Password Reset: Request a password reset OTP, verify it, and set a new password.
 Logout: Securely invalidate the user's token and clear localStorage.
 Protected Dashboard: Accessible only to authenticated users, displaying a personalized greeting.
 Responsive Design: Styled with Tailwind CSS, featuring a yellow-to-white gradient and split layout.
@@ -41,6 +42,8 @@ POST /api/account/login/
 POST /api/account/verify-otp/
 POST /api/account/resend-otp/
 POST /api/account/logout/
+POST /api/account/password-reset/request/
+POST /api/account/password-reset/confirm/
 
 
 Brevo API key configured in the backend
@@ -78,7 +81,7 @@ Usage
 
 Home Page (/):
 
-Displays a welcome message with options to sign in or sign up (for unauthenticated users) or access the dashboard and log out (for authenticated users).
+Displays a welcome message with options to sign in, sign up, or reset password (for unauthenticated users) or access the dashboard and log out (for authenticated users).
 Features a lock icon and yellow-to-white gradient design.
 
 
@@ -102,6 +105,14 @@ Enter username and password.
 Stores authToken and username in localStorage and redirects to /dashboard.
 
 
+Password Reset:
+
+Request (/password-reset/request): Enter username to receive a password reset OTP via email.
+Verify OTP (/password-reset/verify): Enter username and OTP to proceed to password reset.
+Confirm (/password-reset/confirm): Enter username, OTP, and new password to reset the account.
+Redirects to /login on success.
+
+
 Dashboard (/dashboard):
 
 Protected route accessible only to authenticated users.
@@ -121,19 +132,22 @@ custom-auth-frontend/
 ├── public/
 ├── src/
 │   ├── components/
-│   │   ├── Home.jsx           # Welcome page with sign-in/sign-up or dashboard/logout links
-│   │   ├── Login.jsx          # Login form
-│   │   ├── Register.jsx       # Registration form
-│   │   ├── OTPVerify.jsx      # OTP verification form with resend option
-│   │   ├── Dashboard.jsx      # Protected dashboard for authenticated users
-│   │   ├── ProtectedRoute.jsx # Route wrapper for authenticated routes
-│   ├── App.jsx                # Main app with routing
-│   ├── main.jsx              # Entry point
-│   ├── index.css             # Tailwind CSS imports
-├── .env                      # Environment variables (VITE_API_URL)
-├── package.json              # Dependencies and scripts
-├── vite.config.js            # Vite configuration
-├── README.md                 # This file
+│   │   ├── Home.jsx                    # Welcome page with sign-in/sign-up/reset links
+│   │   ├── Login.jsx                   # Login form
+│   │   ├── Register.jsx                # Registration form
+│   │   ├── OTPVerify.jsx               # OTP verification for registration
+│   │   ├── Dashboard.jsx               # Protected dashboard
+│   │   ├── ProtectedRoute.jsx          # Route wrapper for authenticated routes
+│   │   ├── ResetPasswordRequest.jsx    # Password reset request form
+│   │   ├── ResetPasswordVerify.jsx     # Password reset OTP verification
+│   │   ├── ResetPasswordConfirm.jsx    # New password form
+│   ├── App.jsx                        # Main app with routing
+│   ├── main.jsx                      # Entry point
+│   ├── index.css                     # Tailwind CSS imports
+├── .env                              # Environment variables (VITE_API_URL)
+├── package.json                      # Dependencies and scripts
+├── vite.config.js                    # Vite configuration
+├── README.md                         # This file
 
 Dependencies
 Install the following packages (already included in package.json):
@@ -164,11 +178,13 @@ The frontend expects a Django backend with:
 
 Token Authentication: Using rest_framework.authtoken.
 Endpoints:
-POST /api/account/register/: Accepts username, email, password; returns detail and triggers OTP email.
+POST /api/account/register/: Accepts username, email, password; returns detail.
 POST /api/account/login/: Accepts username, password; returns token, username, email, detail.
 POST /api/account/verify-otp/: Accepts username, otp_code; returns detail.
 POST /api/account/resend-otp/: Accepts username; returns detail.
 POST /api/account/logout/: Requires Authorization: Token <token>; returns detail.
+POST /api/account/password-reset/request/: Accepts username; returns detail.
+POST /api/account/password-reset/confirm/: Accepts username, otp_code, new_password; returns detail.
 
 
 Brevo Integration: Configured with BREVO_API_KEY for OTP emails.
@@ -176,30 +192,30 @@ CORS: Allows requests from http://localhost:5173.
 
 Troubleshooting
 
-401 Unauthorized on Register/Login:
+401 Unauthorized:
 
-Ensure RegisterView and LoginAPIView have permission_classes = [AllowAny] in views.py.
-Verify no Authorization header is sent in axios requests for /register/ or /login/.
+Ensure RegisterView, LoginAPIView, OTPVerifyView, ResendOTPView, PasswordResetRequestView, and PasswordResetConfirmView have permission_classes = [AllowAny].
+Verify no Authorization header is sent for unauthenticated endpoints.
 Check settings.py has no DEFAULT_PERMISSION_CLASSES set to IsAuthenticated.
 
 
 403 Forbidden on Logout:
 
-Confirm the Authorization: Token <token> header is sent in the logout request.
-Check localStorage for a valid authToken (DevTools > Application > Local Storage).
-Verify LogoutAPIView uses IsAuthenticated and the token exists in rest_framework.authtoken.models.Token.
+Confirm Authorization: Token <token> is sent in the logout request.
+Check localStorage for a valid authToken.
+Verify LogoutAPIView uses IsAuthenticated.
 
 
 OTP Email Issues:
 
 Check Brevo’s Transactional > Email Activity for sent emails.
 Verify BREVO_API_KEY and DEFAULT_FROM_EMAIL (jp9backup@gmail.com) in the backend .env.
-Ensure tenacity is retrying transient failures (logs in INFO level).
+Ensure tenacity retries transient failures (logs in INFO level).
 
 
 CORS Errors:
 
-Ensure django-cors-headers is installed and configured:# settings.py
+Ensure django-cors-headers is configured:# settings.py
 INSTALLED_APPS = ['corsheaders', ...]
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware', ...]
 CORS_ALLOWED_ORIGINS = ['http://localhost:5173']
@@ -219,12 +235,9 @@ Check browser console (DevTools > Console) for JavaScript errors.
 Future Improvements
 
 Google OAuth: Implement Google Sign-In using an OAuth provider.
-Password Reset: Add a password reset flow with email-based OTP verification.
-Token Expiry: Use djangorestframework-simplejwt for refresh tokens.
 Profile Page: Allow users to update their username or email.
-Rate Limiting: Enforce stricter throttling on sensitive endpoints (already configured at 20/hour for anon users).
-
-Password Reset: add forget password
+Token Expiry: Use djangorestframework-simplejwt for refresh tokens.
+Enhanced Security: Add CAPTCHA for password reset requests to prevent abuse.
 
 Contributing
 

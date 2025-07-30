@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GoArrowLeft, GoArrowRight } from "react-icons/go";
 import { FcGoogle } from "react-icons/fc";
 import { ToastContainer, toast } from "react-toastify";
@@ -29,7 +29,7 @@ const Login = () => {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-yellow-500 md:bg-gradient-to-r md:from-yellow-500 md:to-white">
+    <section className="min-h-screen flex justify-between md:items-center md:justify-center bg-yellow-500 md:bg-gradient-to-r md:from-yellow-500 md:to-white">
       <div className="flex flex-col md:flex-row md:max-w-4xl md:bg-white md:rounded-3xl md:shadow-2xl md:overflow-hidden">
         {/* Left Section (Header + Description) for Desktop */}
         <div className="md:w-1/2 md:bg-yellow-500 md:p-10 md:flex md:flex-col md:justify-between">
@@ -79,9 +79,12 @@ const Login = () => {
               className="py-4 px-5 bg-gray-100 w-full rounded-full md:rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
             />
             <div className="flex justify-end">
-              <a href="#" className="text-sm text-gray-600 hover:underline">
+              <Link
+                to="/password-reset/request"
+                className="text-sm text-gray-600 hover:underline"
+              >
                 Forgot Password?
-              </a>
+              </Link>
             </div>
             <button
               type="submit"
