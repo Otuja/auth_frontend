@@ -51,7 +51,7 @@ const ResetPasswordConfirm = () => {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-yellow-500 md:bg-gradient-to-r md:from-yellow-500 md:to-white">
+    <section className="min-h-screen flex md:items-center md:justify-center bg-yellow-500 md:bg-gradient-to-r md:from-yellow-500 md:to-white">
       <div className="flex flex-col md:flex-row md:max-w-4xl md:bg-white md:rounded-3xl md:shadow-2xl md:overflow-hidden">
         <div className="md:w-1/2 md:bg-yellow-500 md:p-10 md:flex md:flex-col md:justify-between">
           <div className="p-8 md:p-0 flex items-center justify-between">
